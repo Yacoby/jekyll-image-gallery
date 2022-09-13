@@ -1,0 +1,12 @@
+Layout/LineLength:
+  Max: 120
+
+Style/TrailingCommaInArrayLiteral:
+  Description: Prefer always trailing comma on multiline literals. This makes diffs, and re-ordering nicer.
+  EnforcedStyleForMultiline: consistent_comma
+
+Style/TrailingCommaInHashLiteral:
+  Description: Prefer always trailing comma on multiline literals. This makes diffs, and re-ordering nicer.
+  EnforcedStyleForMultiline: consistent_comma
+
+
