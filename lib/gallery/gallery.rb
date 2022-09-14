@@ -92,18 +92,21 @@ module ImageGallery
       galleries = galleries.sort_by(&:datetime)
       galleries.reverse!
 
-      galleries.group_by { |gallery| gallery.datetime.year }.each do |year, _galleries|
-        site.pages << GalleryIndexPage.new(site, year)
+      galleries.group_by { |gallery| gallery.datetime.year }.each do |year, galleries|
+        site.pages << GalleryIndexPage.new(site, year, galleries)
       end
 
       site.data['galleries'] = galleries
-      site.data['gallery_years'] = galleries.group_by { |gallery| gallery.datetime.year }.keys.sort
-      site.data['max_gallery_year'] = site.data['gallery_years'].max
+
+      gallery_years = galleries.group_by { |gallery| gallery.datetime.year }.keys.sort
+      site.data['gallery_years'] = gallery_years
 
       if ImageGallery._config_with_defaults(site)['generate_root_index']
+        last_gallery_year = gallery_years.max
         site.pages << GalleryIndexPage.new(
           site,
-          site.data['max_gallery_year'],
+          last_gallery_year,
+          galleries.select { |g| g.datetime.year == last_gallery_year },
           override_dir: File.join(*ImageGallery.gallery_path_array(site))
         )
       end
@@ -241,7 +244,7 @@ module ImageGallery
   end
 
   class GalleryIndexPage < Jekyll::Page
-    def initialize(site, year, override_dir: nil)
+    def initialize(site, year, galleries, override_dir: nil)
       @site = site
       @base = site.source
       @dir = override_dir || File.join(*ImageGallery.gallery_path_array(site, year))
@@ -254,6 +257,7 @@ module ImageGallery
       @data = {
         'layout' => 'gallery_index',
         'year' => year,
+        'galleries' => galleries,
         'title' => [config['title_prefix'], year].join(" #{config['title_seperator']} "),
       }
 
